@@ -1,11 +1,11 @@
 package pe.edu.upeu.bibliomobil.di
 
 import org.koin.core.KoinApplication
+import org.koin.core.context.startKoin
 import org.koin.core.module.Module
-import org.koin.core.module.dsl.viewModel
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.KoinAppDeclaration
 import org.koin.dsl.module
-import org.koin.core.context.startKoin
 import pe.edu.upeu.bibliomobil.data.repository.LectorRepositorioEnMemoria
 import pe.edu.upeu.bibliomobil.data.repository.LibroRepositorioEnMemoria
 import pe.edu.upeu.bibliomobil.domain.repository.LectorRepository
@@ -30,8 +30,8 @@ val domainModule = module {
 }
 
 val presentationModule = module {
-    viewModel { LibroViewModel(get(), get()) }
-    viewModel { LectorViewModel(get(), get()) }
+    viewModelOf(::LibroViewModel)
+    viewModelOf(::LectorViewModel)
 }
 
 expect val platformModule: Module
