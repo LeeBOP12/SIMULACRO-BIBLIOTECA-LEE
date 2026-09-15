@@ -24,10 +24,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun LectorScreen(
-    viewModel: LectorViewModel,
+    viewModel: LectorViewModel = koinViewModel(),
     modifier: Modifier = Modifier
 ) {
     val estado by viewModel.uiState.collectAsState()
