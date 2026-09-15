@@ -7,17 +7,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.weight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -28,6 +25,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
+import pe.edu.upeu.bibliomobil.presentation.component.EstadoVacio
+import pe.edu.upeu.bibliomobil.presentation.component.MensajeExito
+import pe.edu.upeu.bibliomobil.presentation.component.ValidatedTextField
 
 @Composable
 fun LibroScreen(
@@ -81,7 +81,7 @@ fun LibroScreen(
 
         estado.mensajeExito?.let { mensaje ->
             item {
-                MensajeExitoLibro(mensaje)
+                MensajeExito(mensaje)
             }
         }
 
@@ -91,9 +91,10 @@ fun LibroScreen(
             }
 
             LibroUiState.Fase.SinLibros -> item {
-                EstadoVacioLibros(
+                EstadoVacio(
                     titulo = "Sin libros",
-                    descripcion = "Registra el primer libro para iniciar el catálogo."
+                    descripcion = "Registra el primer libro para iniciar el catálogo.",
+                    modifier = Modifier.padding(vertical = 24.dp)
                 )
             }
 
@@ -105,11 +106,13 @@ fun LibroScreen(
             }
 
             is LibroUiState.Fase.Error -> item {
-                EstadoVacioLibros(
+                EstadoVacio(
                     titulo = "No se pudo cargar el catálogo",
                     descripcion = fase.mensaje,
                     esError = true,
-                    onReintentar = onReintentar
+                    textoAccion = "Reintentar",
+                    onAccion = onReintentar,
+                    modifier = Modifier.padding(vertical = 24.dp)
                 )
             }
         }
@@ -164,20 +167,20 @@ private fun FormularioLibroCard(
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold
             )
-            CampoLibro(
+            ValidatedTextField(
                 valor = formulario.titulo,
                 etiqueta = "Título",
                 error = formulario.tituloError,
                 onValorChange = onTituloChange
             )
-            CampoLibro(
+            ValidatedTextField(
                 valor = formulario.autor,
                 etiqueta = "Autor",
                 error = formulario.autorError,
                 onValorChange = onAutorChange
             )
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                CampoLibro(
+                ValidatedTextField(
                     valor = formulario.anio,
                     etiqueta = "Año",
                     error = formulario.anioError,
@@ -185,7 +188,7 @@ private fun FormularioLibroCard(
                     onValorChange = onAnioChange,
                     modifier = Modifier.weight(1f)
                 )
-                CampoLibro(
+                ValidatedTextField(
                     valor = formulario.ejemplares,
                     etiqueta = "Ejemplares",
                     error = formulario.ejemplaresError,
@@ -206,31 +209,6 @@ private fun FormularioLibroCard(
 }
 
 @Composable
-private fun CampoLibro(
-    valor: String,
-    etiqueta: String,
-    error: String?,
-    onValorChange: (String) -> Unit,
-    modifier: Modifier = Modifier,
-    keyboardType: KeyboardType = KeyboardType.Text
-) {
-    OutlinedTextField(
-        value = valor,
-        onValueChange = onValorChange,
-        label = { Text(etiqueta) },
-        isError = error != null,
-        supportingText = {
-            if (error != null) {
-                Text(error)
-            }
-        },
-        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-        singleLine = true,
-        modifier = modifier.fillMaxWidth()
-    )
-}
-
-@Composable
 private fun EstadoCargaLibros() {
     Column(
         modifier = Modifier
@@ -244,60 +222,6 @@ private fun EstadoCargaLibros() {
     }
 }
 
-@Composable
-private fun MensajeExitoLibro(mensaje: String) {
-    Card(
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
-        )
-    ) {
-        Text(
-            text = mensaje,
-            modifier = Modifier.padding(16.dp),
-            color = MaterialTheme.colorScheme.onPrimaryContainer,
-            style = MaterialTheme.typography.bodyMedium
-        )
-    }
-}
-
-@Composable
-private fun EstadoVacioLibros(
-    titulo: String,
-    descripcion: String,
-    esError: Boolean = false,
-    onReintentar: (() -> Unit)? = null
-) {
-    val color = if (esError) {
-        MaterialTheme.colorScheme.error
-    } else {
-        MaterialTheme.colorScheme.onSurfaceVariant
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Text(
-            text = titulo,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold,
-            color = color
-        )
-        Text(
-            text = descripcion,
-            style = MaterialTheme.typography.bodyMedium,
-            color = color
-        )
-        if (onReintentar != null) {
-            Button(onClick = onReintentar) {
-                Text("Reintentar")
-            }
-        }
-    }
-}
 
 @Composable
 private fun LibroCard(libro: LibroUi) {

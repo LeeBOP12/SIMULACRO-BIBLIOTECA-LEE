@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -16,8 +17,17 @@ import androidx.compose.ui.unit.dp
 fun EstadoVacio(
     titulo: String,
     descripcion: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    esError: Boolean = false,
+    textoAccion: String? = null,
+    onAccion: (() -> Unit)? = null
 ) {
+    val color = if (esError) {
+        MaterialTheme.colorScheme.error
+    } else {
+        MaterialTheme.colorScheme.onSurfaceVariant
+    }
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -28,12 +38,18 @@ fun EstadoVacio(
         Text(
             text = titulo,
             style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.SemiBold,
+            color = color
         )
         Text(
             text = descripcion,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = color
         )
+        if (textoAccion != null && onAccion != null) {
+            Button(onClick = onAccion) {
+                Text(textoAccion)
+            }
+        }
     }
 }

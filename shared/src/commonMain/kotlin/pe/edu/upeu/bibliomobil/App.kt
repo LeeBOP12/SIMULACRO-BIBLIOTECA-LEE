@@ -1,6 +1,8 @@
 package pe.edu.upeu.bibliomobil
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -10,6 +12,7 @@ import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
@@ -21,6 +24,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.koin.compose.KoinContext
 import pe.edu.upeu.bibliomobil.presentation.component.EstadoVacio
@@ -29,13 +33,16 @@ import pe.edu.upeu.bibliomobil.presentation.lector.LectorScreen
 import pe.edu.upeu.bibliomobil.presentation.libro.LibroScreen
 import pe.edu.upeu.bibliomobil.presentation.navigation.DESTINOS
 import pe.edu.upeu.bibliomobil.presentation.navigation.Screen
+import pe.edu.upeu.bibliomobil.presentation.theme.BiblioMobilTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview
 fun App() {
     KoinContext {
-        MaterialTheme {
+        var modoOscuro by rememberSaveable { mutableStateOf(false) }
+
+        BiblioMobilTheme(darkTheme = modoOscuro) {
             var pantallaActual by rememberSaveable(stateSaver = Screen.Saver) {
                 mutableStateOf(Screen.Inicio)
             }
@@ -60,6 +67,22 @@ fun App() {
                                     scope.launch { drawerState.close() }
                                 },
                                 modifier = Modifier.padding(horizontal = 12.dp)
+                            )
+                        }
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Modo oscuro",
+                                style = MaterialTheme.typography.bodyLarge,
+                                modifier = Modifier.weight(1f)
+                            )
+                            Switch(
+                                checked = modoOscuro,
+                                onCheckedChange = { modoOscuro = it }
                             )
                         }
                     }
@@ -90,7 +113,8 @@ fun App() {
                             Screen.Lectores -> LectorScreen()
                             Screen.Prestamos -> EstadoVacio(
                                 titulo = "Prestamos",
-                                descripcion = "RF-05 queda preparado para registrar prestamos en la siguiente iteracion."
+                                descripcion = "RF-05 queda preparado para registrar prestamos en la siguiente iteracion.",
+                                modifier = Modifier.padding(vertical = 24.dp)
                             )
                         }
                     }

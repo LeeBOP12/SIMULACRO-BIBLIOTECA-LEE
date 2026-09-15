@@ -8,13 +8,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -25,6 +23,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
+import pe.edu.upeu.bibliomobil.presentation.component.EstadoVacio
+import pe.edu.upeu.bibliomobil.presentation.component.MensajeExito
+import pe.edu.upeu.bibliomobil.presentation.component.ValidatedTextField
 
 @Composable
 fun LectorScreen(
@@ -75,7 +76,7 @@ fun LectorScreen(
 
         estado.mensajeExito?.let { mensaje ->
             item {
-                MensajeExitoLector(mensaje)
+                MensajeExito(mensaje)
             }
         }
 
@@ -85,9 +86,10 @@ fun LectorScreen(
             }
 
             LectorUiState.Fase.SinLectores -> item {
-                EstadoVacioLectores(
+                EstadoVacio(
                     titulo = "Sin lectores",
-                    descripcion = "Registra el primer lector para iniciar la cartera."
+                    descripcion = "Registra el primer lector para iniciar la cartera.",
+                    modifier = Modifier.padding(vertical = 24.dp)
                 )
             }
 
@@ -99,11 +101,13 @@ fun LectorScreen(
             }
 
             is LectorUiState.Fase.Error -> item {
-                EstadoVacioLectores(
+                EstadoVacio(
                     titulo = "No se pudo cargar la cartera de lectores",
                     descripcion = fase.mensaje,
                     esError = true,
-                    onReintentar = onReintentar
+                    textoAccion = "Reintentar",
+                    onAccion = onReintentar,
+                    modifier = Modifier.padding(vertical = 24.dp)
                 )
             }
         }
@@ -157,20 +161,20 @@ private fun FormularioLectorCard(
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold
             )
-            CampoLector(
+            ValidatedTextField(
                 valor = formulario.nombre,
                 etiqueta = "Nombre",
                 error = formulario.nombreError,
                 onValorChange = onNombreChange
             )
-            CampoLector(
+            ValidatedTextField(
                 valor = formulario.correo,
                 etiqueta = "Correo",
                 error = formulario.correoError,
                 keyboardType = KeyboardType.Email,
                 onValorChange = onCorreoChange
             )
-            CampoLector(
+            ValidatedTextField(
                 valor = formulario.telefono,
                 etiqueta = "Teléfono",
                 error = formulario.telefonoError,
@@ -189,31 +193,6 @@ private fun FormularioLectorCard(
 }
 
 @Composable
-private fun CampoLector(
-    valor: String,
-    etiqueta: String,
-    error: String?,
-    onValorChange: (String) -> Unit,
-    modifier: Modifier = Modifier,
-    keyboardType: KeyboardType = KeyboardType.Text
-) {
-    OutlinedTextField(
-        value = valor,
-        onValueChange = onValorChange,
-        label = { Text(etiqueta) },
-        isError = error != null,
-        supportingText = {
-            if (error != null) {
-                Text(error)
-            }
-        },
-        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-        singleLine = true,
-        modifier = modifier.fillMaxWidth()
-    )
-}
-
-@Composable
 private fun EstadoCargaLectores() {
     Column(
         modifier = Modifier
@@ -227,60 +206,6 @@ private fun EstadoCargaLectores() {
     }
 }
 
-@Composable
-private fun MensajeExitoLector(mensaje: String) {
-    Card(
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
-        )
-    ) {
-        Text(
-            text = mensaje,
-            modifier = Modifier.padding(16.dp),
-            color = MaterialTheme.colorScheme.onPrimaryContainer,
-            style = MaterialTheme.typography.bodyMedium
-        )
-    }
-}
-
-@Composable
-private fun EstadoVacioLectores(
-    titulo: String,
-    descripcion: String,
-    esError: Boolean = false,
-    onReintentar: (() -> Unit)? = null
-) {
-    val color = if (esError) {
-        MaterialTheme.colorScheme.error
-    } else {
-        MaterialTheme.colorScheme.onSurfaceVariant
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Text(
-            text = titulo,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold,
-            color = color
-        )
-        Text(
-            text = descripcion,
-            style = MaterialTheme.typography.bodyMedium,
-            color = color
-        )
-        if (onReintentar != null) {
-            Button(onClick = onReintentar) {
-                Text("Reintentar")
-            }
-        }
-    }
-}
 
 @Composable
 private fun LectorCard(lector: LectorUi) {
